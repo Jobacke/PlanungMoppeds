@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schnellstart - JUH Motorradgruppe Einsatzplanung</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Barlow', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #2C2C2C;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #E30613 0%, #B30510 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 3rem 2rem;
+        }
+        
+        .step {
+            background: #f8f9fa;
+            border-left: 4px solid #E30613;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #E30613;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        
+        .step h2 {
+            display: inline-block;
+            font-size: 1.5rem;
+            color: #E30613;
+            margin-bottom: 1rem;
+        }
+        
+        .step-content {
+            margin-left: 3.5rem;
+            margin-top: 1rem;
+        }
+        
+        .code-block {
+            background: #2C2C2C;
+            color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .highlight {
+            background: #FFF3CD;
+            padding: 1rem;
+            border-left: 4px solid #FFC107;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .highlight strong {
+            color: #856404;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-item {
+            background: #E8F5E9;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #28A745;
+        }
+        
+        .feature-item h3 {
+            color: #28A745;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #E30613;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            margin: 1rem 0.5rem 1rem 0;
+        }
+        
+        .btn:hover {
+            background: #B30510;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(227, 6, 19, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #4A4A4A;
+        }
+        
+        .btn-secondary:hover {
+            background: #3A3A3A;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 2rem;
+            text-align: center;
+            border-top: 2px solid #e9ecef;
+            color: #666;
+        }
+        
+        ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        li {
+            margin-bottom: 0.5rem;
+        }
+        
+        a {
+            color: #E30613;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏍️ Schnellstart-Anleitung</h1>
+            <p>JUH Motorradgruppe - Einsatzplanung 2025</p>
+        </div>
+        
+        <div class="content">
+            <div class="highlight">
+                <strong>⚡ Wichtig:</strong> Diese Anleitung führt Sie durch die ersten Schritte zur Einrichtung der Einsatzplanungs-App. Bitte lesen Sie alle Schritte sorgfältig durch, bevor Sie beginnen.
+            </div>
+            
+            <div class="step">
+                <span class="step-number">1</span>
+                <h2>Firebase-Projekt erstellen</h2>
+                <div class="step-content">
+                    <p>Firebase ist die Cloud-Plattform für die Datenspeicherung und Synchronisation.</p>
+                    <ul>
+                        <li>Besuchen Sie <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                        <li>Melden Sie sich mit Ihrem Google-Konto an</li>
+                        <li>Klicken Sie auf "Projekt hinzufügen"</li>
+                        <li>Geben Sie einen Projektnamen ein (z.B. "JUH Motorradgruppe")</li>
+                        <li>Folgen Sie den Anweisungen zur Projekterstellung</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">2</span>
+                <h2>Cloud Firestore aktivieren</h2>
+                <div class="step-content">
+                    <p>Firestore ist die Datenbank für alle Einsatzdaten.</p>
+                    <ul>
+                        <li>Im Firebase-Projekt: Klicken Sie auf "Build" → "Firestore Database"</li>
+                        <li>Klicken Sie auf "Datenbank erstellen"</li>
+                        <li>Wählen Sie "Produktionsmodus starten"</li>
+                        <li>Wählen Sie eine Region (empfohlen: europe-west3 für Frankfurt)</li>
+                        <li>Klicken Sie auf "Aktivieren"</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">3</span>
+                <h2>Web-App registrieren</h2>
+                <div class="step-content">
+                    <p>Registrieren Sie die Einsatzplanungs-App in Firebase.</p>
+                    <ul>
+                        <li>Klicken Sie auf das Zahnrad-Symbol (Projekteinstellungen)</li>
+                        <li>Scrollen Sie zu "Deine Apps"</li>
+                        <li>Klicken Sie auf das Web-Symbol (&lt;/&gt;)</li>
+                        <li>Geben Sie einen App-Namen ein (z.B. "Einsatzplanung Web")</li>
+                        <li>Klicken Sie auf "App registrieren"</li>
+                        <li><strong>Wichtig:</strong> Kopieren Sie die Firebase-Konfiguration!</li>
+                    </ul>
+                    
+                    <p style="margin-top: 1rem;">Die Konfiguration sieht etwa so aus:</p>
+                    <div class="code-block">const firebaseConfig = {
+  apiKey: "AIzaSyA...",
+  authDomain: "juh-motorrad.firebaseapp.com",
+  projectId: "juh-motorrad",
+  storageBucket: "juh-motorrad.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abc..."
+};</div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">4</span>
+                <h2>Firebase-Konfiguration einfügen</h2>
+                <div class="step-content">
+                    <p>Öffnen Sie die Datei <code>motorrad-einsatzplanung.html</code> mit einem Text-Editor (z.B. Notepad++, Visual Studio Code).</p>
+                    <ul>
+                        <li>Suchen Sie nach der Zeile mit <code>const firebaseConfig = {</code> (ca. Zeile 632)</li>
+                        <li>Ersetzen Sie die Beispiel-Werte mit Ihrer echten Firebase-Konfiguration</li>
+                        <li>Speichern Sie die Datei</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <strong>⚠️ Achtung:</strong> Bewahren Sie Ihre Firebase-Konfiguration sicher auf! Diese Daten sollten nicht öffentlich geteilt werden.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">5</span>
+                <h2>Firestore-Regeln konfigurieren</h2>
+                <div class="step-content">
+                    <p>Für die erste Nutzung verwenden wir einfache Entwicklungsregeln.</p>
+                    <ul>
+                        <li>In Firebase: Gehen Sie zu "Firestore Database" → "Regeln"</li>
+                        <li>Ersetzen Sie die Regeln mit folgendem Code:</li>
+                    </ul>
+                    
+                    <div class="code-block">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</div>
+                    
+                    <ul>
+                        <li>Klicken Sie auf "Veröffentlichen"</li>
+                    </ul>
+                    
+                    <div class="highlight">
+                        <strong>⚠️ Wichtig:</strong> Diese Regeln sind nur für Entwicklung/Test geeignet! Für den Produktivbetrieb sollten Sie Firebase Authentication aktivieren und die Regeln entsprechend anpassen.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="step">
+                <span class="step-number">6</span>
+                <h2>App starten</h2>
+                <div class="step-content">
+                    <p>Jetzt können Sie die App verwenden!</p>
+                    <ul>
+                        <li>Öffnen Sie die Datei <code>motorrad-einsatzplanung.html</code> in einem modernen Browser</li>
+                        <li>Empfohlene Browser: Chrome, Firefox, Edge (aktuellste Version)</li>
+                        <li>Die App lädt automatisch und zeigt das Dashboard</li>
+                    </ul>
+                    
+                    <div style="margin-top: 1.5rem; text-align: center;">
+                        <a href="motorrad-einsatzplanung.html" class="btn">🚀 App jetzt öffnen</a>
+                        <a href="README.md" class="btn btn-secondary" target="_blank">📖 Vollständige Dokumentation</a>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 style="margin: 3rem 0 1.5rem 0; font-size: 2rem; color: #E30613;">Hauptfunktionen</h2>
+            
+            <div class="feature-list">
+                <div class="feature-item">
+                    <h3>📅 Einsatzplanung</h3>
+                    <p>Vollständige Planung mit Datum, Uhrzeit, Ort, Motorrädern und Fahrern</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>📊 Dashboard</h3>
+                    <p>Schnellüberblick mit Statistiken und nächsten Einsätzen</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🏍️ Motorradverwaltung</h3>
+                    <p>Übersicht aller Motorräder mit Einsatzzahlen und Kilometern</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>👥 Fahrerverwaltung</h3>
+                    <p>Verwaltung aller Fahrer mit Einsatzstatistiken</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>📥 Export</h3>
+                    <p>Export als CSV, Excel oder PDF für Berichte und Archivierung</p>
+                </div>
+                
+                <div class="feature-item">
+                    <h3>🔍 Such & Filter</h3>
+                    <p>Schnelles Finden von Einsätzen nach verschiedenen Kriterien</p>
+                </div>
+            </div>
+            
+            <h2 style="margin: 3rem 0 1.5rem 0; font-size: 2rem; color: #E30613;">Erste Schritte in der App</h2>
+            
+            <div class="step">
+                <h2 style="display: block; margin-bottom: 1rem;">Neuen Einsatz erstellen</h2>
+                <div class="step-content" style="margin-left: 0;">
+                    <ol style="margin-left: 1.5rem;">
+                        <li>Klicken Sie auf den Button "Neuer Einsatz" oben rechts</li>
+                        <li>Füllen Sie alle erforderlichen Felder aus (mit * markiert)</li>
+                        <li>Wählen Sie Motorräder und Fahrer durch Anklicken der Checkboxen</li>
+                        <li>Fügen Sie optional Bemerkungen hinzu</li>
+                        <li>Klicken Sie auf "Speichern"</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h2 style="display: block; margin-bottom: 1rem;">Einsatz bearbeiten oder löschen</h2>
+                <div class="step-content" style="margin-left: 0;">
+                    <ol style="margin-left: 1.5rem;">
+                        <li>Wechseln Sie zur Ansicht "Einsatzplanung"</li>
+                        <li>In der Tabelle finden Sie bei jedem Einsatz die Buttons "Bearbeiten" und "Löschen"</li>
+                        <li>Klicken Sie auf "Bearbeiten" um Änderungen vorzunehmen</li>
+                        <li>Bestätigen Sie das Löschen von Einsätzen mit "OK"</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="step">
+                <h2 style="display: block; margin-bottom: 1rem;">Einsätze exportieren</h2>
+                <div class="step-content" style="margin-left: 0;">
+                    <ol style="margin-left: 1.5rem;">
+                        <li>Klicken Sie auf den Button "Exportieren" oben rechts</li>
+                        <li>Wählen Sie das gewünschte Format (CSV, Excel oder PDF)</li>
+                        <li>Die Datei wird automatisch heruntergeladen</li>
+                        <li>Sie können vor dem Export Filter anwenden, um nur bestimmte Einsätze zu exportieren</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <h2 style="margin: 3rem 0 1.5rem 0; font-size: 2rem; color: #E30613;">Hilfe & Support</h2>
+            
+            <div class="highlight">
+                <p><strong>Probleme oder Fragen?</strong></p>
+                <ul style="margin-top: 1rem;">
+                    <li>Lesen Sie die vollständige Dokumentation in der <code>README.md</code></li>
+                    <li>Überprüfen Sie, ob die Firebase-Konfiguration korrekt eingefügt wurde</li>
+                    <li>Stellen Sie sicher, dass Sie eine stabile Internetverbindung haben</li>
+                    <li>Aktualisieren Sie Ihren Browser auf die neueste Version</li>
+                    <li>Wenden Sie sich bei technischen Problemen an Ihre IT-Abteilung</li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="motorrad-einsatzplanung.html" class="btn">🚀 Jetzt loslegen!</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>JUH Motorradgruppe - Einsatzplanung 2025</strong></p>
+            <p>Johanniter Unfallhilfe Bayern</p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">Version 1.0 | Dezember 2025</p>
+        </div>
+    </div>
+</body>
+</html>
