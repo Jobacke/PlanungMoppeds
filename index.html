@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUH Motorradgruppe - Einsatzplanung 2025</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        window.firebaseModules = { 
+            initializeApp, 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signInWithPopup, 
+            GoogleAuthProvider,
+            signOut,
+            onAuthStateChanged,
+            getFirestore, 
+            collection, 
+            addDoc, 
+            getDocs, 
+            updateDoc, 
+            deleteDoc, 
+            doc, 
+            query, 
+            where, 
+            orderBy 
+        };
+        console.log('✅ Firebase Module geladen');
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Roboto+Condensed:wght@400;700&display=swap');
+        
+        :root {
+            --juh-red: #E30613;
+            --juh-dark-red: #B30510;
+            --juh-light-red: #FF1F2D;
+            --juh-gray: #4A4A4A;
+            --juh-light-gray: #F5F5F5;
+            --juh-border: #E0E0E0;
+            --text-dark: #2C2C2C;
+            --text-light: #666666;
+            --success: #28A745;
+            --warning: #FFC107;
+            --info: #17A2B8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Barlow', sans-serif;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        
+        /* Login Page Styles */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            max-width: 450px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, var(--juh-red) 0%, var(--juh-dark-red) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        
+        .login-header .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 36px;
+            color: var(--juh-red);
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .login-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-header p {
+            opacity: 0.95;
+            font-size: 1rem;
+        }
+        
+        .login-body {
+            padding: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 2px solid var(--juh-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Barlow', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--juh-red);
+            box-shadow: 0 0 0 3px rgba(227, 6, 19, 0.1);
+        }
+        
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: 'Barlow', sans-serif;
+        }
+        
+        .btn-primary {
+            background: var(--juh-red);
+            color: white;
+            box-shadow: 0 2px 8px rgba(227, 6, 19, 0.3);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            background: var(--juh-dark-red);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(227, 6, 19, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-google {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--juh-border);
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .btn-google:hover {
+            border-color: var(--juh-red);
+            background: var(--juh-light-gray);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 1.5rem 0;
+            color: var(--text-light);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--juh-border);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 0.875rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--juh-red) 0%, var(--juh-dark-red) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px rgba(227, 6, 19, 0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 24px;
+            color: var(--juh-red);
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        
+        .header-title h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .header-title .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.95;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.1);
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+        }
+        
+        .user-email {
+            font-size: 0.9rem;
+        }
+        
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .btn-header {
+            background: white;
+            color: var(--juh-red);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-header:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+        }
+        
+        .nav-tabs {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 0 2rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        .nav-tab {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.95rem;
+        }
+        
+        .nav-tab:hover {
+            color: var(--juh-red);
+        }
+        
+        .nav-tab.active {
+            color: var(--juh-red);
+        }
+        
+        .nav-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--juh-red);
+        }
+        
+        .main-content {
+            padding: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--juh-light-gray);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--juh-gray);
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #3A3A3A;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--juh-red);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--juh-red);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        .table thead {
+            background: linear-gradient(135deg, var(--juh-red) 0%, var(--juh-dark-red) 100%);
+            color: white;
+        }
+        
+        .table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--juh-border);
+            font-size: 0.95rem;
+        }
+        
+        .table tbody tr:hover {
+            background: var(--juh-light-gray);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .badge-pflicht {
+            background: #FFE5E7;
+            color: var(--juh-red);
+        }
+        
+        .badge-optional {
+            background: #E8F5E9;
+            color: var(--success);
+        }
+        
+        .badge-info {
+            background: #E3F2FD;
+            color: var(--info);
+        }
+        
+        .badge-geplant {
+            background: #FFF3CD;
+            color: #856404;
+        }
+        
+        .badge-abgeschlossen {
+            background: #D4EDDA;
+            color: #155724;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--juh-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Barlow', sans-serif;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--juh-red);
+        }
+        
+        .form-select {
+            padding: 0.75rem;
+            border: 2px solid var(--juh-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Barlow', sans-serif;
+        }
+        
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: white;
+            margin: 0 0.25rem;
+        }
+        
+        .action-btn-edit {
+            background: var(--info);
+        }
+        
+        .action-btn-delete {
+            background: #DC3545;
+        }
+        
+        .action-btn-complete {
+            background: var(--success);
+        }
+        
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+        
+        .search-filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--juh-light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--juh-red);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 0.5rem;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 2px solid var(--juh-light-gray);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .form-grid-full {
+            grid-column: 1 / -1;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .detail-item {
+            padding: 1rem;
+            background: var(--juh-light-gray);
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-value {
+            font-size: 1rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+            }
+            .main-content {
+                padding: 1rem;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCf7t6bWBGND3nyxVy-PlO3nhcnimbyFbk",
+            authDomain: "planungmoppeds.firebaseapp.com",
+            projectId: "planungmoppeds",
+            storageBucket: "planungmoppeds.firebasestorage.app",
+            messagingSenderId: "258167919062",
+            appId: "1:258167919062:web:c6d9f907ccd13a259f1477"
+        };
+        
+        let db = null;
+        let auth = null;
+        let firebaseApp = null;
+        
+        const initFirebase = () => {
+            try {
+                const { initializeApp, getFirestore, getAuth } = window.firebaseModules;
+                firebaseApp = initializeApp(firebaseConfig);
+                db = getFirestore(firebaseApp);
+                auth = getAuth(firebaseApp);
+                console.log('✅ Firebase initialisiert');
+                return true;
+            } catch (error) {
+                console.error("Firebase Fehler:", error);
+                return false;
+            }
+        };
+        
+        // Stammdaten mit erweiterten Strukturen
+        const INITIAL_MOTORRAEDER = [
+            { id: '903', kennzeichen: 'M-JU 903', marke: 'BMW', typ: 'R 1200 RT', baujahr: 2018, kilometerstand: 45000 },
+            { id: '904', kennzeichen: 'M-JU 904', marke: 'BMW', typ: 'R 1200 RT', baujahr: 2019, kilometerstand: 38000 },
+            { id: '905', kennzeichen: 'M-JU 905', marke: 'BMW', typ: 'R 1200 RT', baujahr: 2020, kilometerstand: 25000 },
+            { id: '906', kennzeichen: 'M-JU 906', marke: 'BMW', typ: 'R 1200 RT', baujahr: 2021, kilometerstand: 15000 },
+            { id: 'mkt1200', kennzeichen: 'MKT 1200 RT', marke: 'BMW', typ: 'R 1200 RT', baujahr: 2017, kilometerstand: 58000 },
+            { id: 'mkt800', kennzeichen: 'MKT F800 GS', marke: 'BMW', typ: 'F 800 GS', baujahr: 2016, kilometerstand: 62000 }
+        ];
+        
+        const INITIAL_FAHRER = [
+            { id: '1', vorname: 'Thomas', nachname: 'Miklos', email: 'thomas.miklos@johanniter.de', telefon: '+49 151 12345678', geburtstag: '1985-03-15' },
+            { id: '2', vorname: 'Martin', nachname: 'Apel', email: 'martin.apel@johanniter.de', telefon: '+49 151 23456789', geburtstag: '1982-07-22' },
+            { id: '3', vorname: 'Stefan', nachname: 'Brosch', email: 'stefan.brosch@johanniter.de', telefon: '+49 151 34567890', geburtstag: '1990-11-08' },
+            { id: '4', vorname: 'Michael', nachname: 'Eipert', email: 'michael.eipert@johanniter.de', telefon: '', geburtstag: '' },
+            { id: '5', vorname: 'Andreas', nachname: 'Wallner', email: '', telefon: '+49 151 56789012', geburtstag: '1988-05-14' },
+            { id: '6', vorname: 'Klaus', nachname: 'Hofbauer', email: 'klaus.hofbauer@johanniter.de', telefon: '', geburtstag: '' },
+            { id: '7', vorname: 'Alexander', nachname: 'v. Gneisenau', email: 'alexander.gneisenau@johanniter.de', telefon: '+49 151 78901234', geburtstag: '1992-09-30' },
+            { id: '8', vorname: 'Peter', nachname: 'Rubner', email: 'peter.rubner@johanniter.de', telefon: '+49 151 89012345', geburtstag: '1987-02-18' },
+            { id: '9', vorname: 'Johannes', nachname: 'Hipf', email: 'johannes.hipf@johanniter.de', telefon: '', geburtstag: '' },
+            { id: '10', vorname: 'Markus', nachname: 'Backhaus', email: '', telefon: '+49 151 01234567', geburtstag: '1991-12-25' },
+            { id: '11', vorname: 'Daniel', nachname: 'Baumüller', email: 'daniel.baumueller@johanniter.de', telefon: '+49 151 12340987', geburtstag: '1989-06-03' }
+        ];
+        
+        const EINSATZTYPEN = [
+            'Pflichtdienst', 'Optionaler Dienst', 'Fachfortbildung', 
+            'Sanitätsdienst', 'Streife', 'Veranstaltung', 'Werkstatt'
+        ];
+        
+        // Login Component
+        const LoginPage = ({ onLoginSuccess }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const [loading, setLoading] = useState(false);
+            
+            const handleEmailLogin = async (e) => {
+                e.preventDefault();
+                setError('');
+                setLoading(true);
+                
+                try {
+                    const { signInWithEmailAndPassword } = window.firebaseModules;
+                    await signInWithEmailAndPassword(auth, email, password);
+                    console.log('✅ Login erfolgreich');
+                } catch (error) {
+                    console.error('Login Fehler:', error);
+                    if (error.code === 'auth/invalid-credential') {
+                        setError('E-Mail oder Passwort falsch');
+                    } else if (error.code === 'auth/user-not-found') {
+                        setError('Benutzer nicht gefunden');
+                    } else if (error.code === 'auth/wrong-password') {
+                        setError('Falsches Passwort');
+                    } else if (error.code === 'auth/invalid-email') {
+                        setError('Ungültige E-Mail-Adresse');
+                    } else {
+                        setError('Anmeldung fehlgeschlagen: ' + error.message);
+                    }
+                }
+                setLoading(false);
+            };
+            
+            const handleGoogleLogin = async () => {
+                setError('');
+                setLoading(true);
+                
+                try {
+                    const { signInWithPopup, GoogleAuthProvider } = window.firebaseModules;
+                    const provider = new GoogleAuthProvider();
+                    await signInWithPopup(auth, provider);
+                    console.log('✅ Google Login erfolgreich');
+                } catch (error) {
+                    console.error('Google Login Fehler:', error);
+                    if (error.code === 'auth/popup-closed-by-user') {
+                        setError('Login-Fenster wurde geschlossen');
+                    } else if (error.code === 'auth/cancelled-popup-request') {
+                        setError('Login wurde abgebrochen');
+                    } else {
+                        setError('Google-Anmeldung fehlgeschlagen: ' + error.message);
+                    }
+                }
+                setLoading(false);
+            };
+            
+            return (
+                <div className="login-container">
+                    <div className="login-box">
+                        <div className="login-header">
+                            <div className="logo-icon">JUH</div>
+                            <h1>🏍️ Einsatzplanung</h1>
+                            <p>Johanniter Unfallhilfe Bayern</p>
+                        </div>
+                        
+                        <div className="login-body">
+                            <h2 style={{ marginBottom: '1.5rem', fontSize: '1.3rem' }}>Anmelden</h2>
+                            
+                            {error && (
+                                <div className="error-message">
+                                    ⚠️ {error}
+                                </div>
+                            )}
+                            
+                            <form onSubmit={handleEmailLogin}>
+                                <div className="form-group">
+                                    <label className="form-label">E-Mail-Adresse</label>
+                                    <input 
+                                        type="email" 
+                                        className="form-input"
+                                        placeholder="deine@email.de"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
+                                
+                                <div className="form-group">
+                                    <label className="form-label">Passwort</label>
+                                    <input 
+                                        type="password" 
+                                        className="form-input"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                    />
+                                </div>
+                                
+                                <button 
+                                    type="submit" 
+                                    className="btn btn-primary"
+                                    style={{ width: '100%' }}
+                                    disabled={loading}
+                                >
+                                    {loading ? '⏳ Wird angemeldet...' : '🔐 Mit E-Mail anmelden'}
+                                </button>
+                            </form>
+                            
+                            <div className="divider">
+                                <span>oder</span>
+                            </div>
+                            
+                            <button 
+                                className="btn btn-google"
+                                onClick={handleGoogleLogin}
+                                disabled={loading}
+                            >
+                                <svg width="20" height="20" viewBox="0 0 24 24">
+                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                                </svg>
+                                Mit Google anmelden
+                            </button>
+                            
+                            <p style={{ 
+                                marginTop: '1.5rem', 
+                                textAlign: 'center', 
+                                color: 'var(--text-light)', 
+                                fontSize: '0.9rem' 
+                            }}>
+                                Nur für autorisierte Team-Mitglieder
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        
+        // Export Function
+        const exportEinsatzToCSV = (einsatz, motorraeder, fahrer) => {
+            const motorraederDetails = einsatz.motorraeder.map(id => {
+                const m = motorraeder.find(x => x.id === id);
+                return m ? `${m.kennzeichen} (${m.marke} ${m.typ})` : id;
+            }).join(', ');
+            
+            const fahrerDetails = einsatz.fahrer.map(id => {
+                const f = fahrer.find(x => x.id === id);
+                return f ? `${f.vorname} ${f.nachname}` : id;
+            }).join(', ');
+            
+            const csv = [
+                ['Einsatzplanung - Export'],
+                [],
+                ['Datum', new Date(einsatz.datum).toLocaleDateString('de-DE')],
+                ['Uhrzeit', `${einsatz.zeitVon} - ${einsatz.zeitBis}`],
+                ['Veranstaltung', einsatz.veranstaltung],
+                ['Ort', einsatz.ort],
+                ['Typ', einsatz.typ],
+                ['Status', einsatz.status || 'Geplant'],
+                ['Kilometer', einsatz.km || 0],
+                [],
+                ['Motorräder', motorraederDetails],
+                [],
+                ['Fahrer', fahrerDetails],
+                [],
+                ['Bemerkungen', einsatz.bemerkungen || '-']
+            ].map(row => row.join(';')).join('\n');
+            
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Einsatz_${einsatz.veranstaltung.replace(/\s+/g, '_')}_${new Date(einsatz.datum).toISOString().split('T')[0]}.csv`;
+            link.click();
+        };
+        
+        // Main App Component
+        const EinsatzplanungApp = () => {
+            const [user, setUser] = useState(null);
+            const [authLoading, setAuthLoading] = useState(true);
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [einsaetze, setEinsaetze] = useState([]);
+            const [motorraeder, setMotorraeder] = useState(INITIAL_MOTORRAEDER);
+            const [fahrer, setFahrer] = useState(INITIAL_FAHRER);
+            const [searchTerm, setSearchTerm] = useState('');
+            const [filterTyp, setFilterTyp] = useState('');
+            const [filterStatus, setFilterStatus] = useState('');
+            const [loading, setLoading] = useState(true);
+            const [showNewEinsatzModal, setShowNewEinsatzModal] = useState(false);
+            const [showFahrerModal, setShowFahrerModal] = useState(false);
+            const [showMotorradModal, setShowMotorradModal] = useState(false);
+            
+            useEffect(() => {
+                initFirebase();
+                
+                const { onAuthStateChanged } = window.firebaseModules;
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    console.log('Auth State Changed:', user?.email);
+                    setUser(user);
+                    setAuthLoading(false);
+                    if (user) {
+                        loadSampleData();
+                    }
+                });
+                
+                return () => unsubscribe();
+            }, []);
+            
+            const loadSampleData = () => {
+                const sampleData = [
+                    {
+                        id: '1',
+                        datum: '2025-04-27',
+                        zeitVon: '08:00',
+                        zeitBis: '16:00',
+                        veranstaltung: 'Sternfahrt Kulmbach',
+                        ort: 'Kulmbach',
+                        typ: 'Fachfortbildung',
+                        motorraeder: ['904', '905'],
+                        fahrer: ['8', '11'],
+                        km: 584,
+                        status: 'Geplant',
+                        bemerkungen: 'Treffen um 07:30 Uhr am Vereinsheim'
+                    },
+                    {
+                        id: '2',
+                        datum: '2025-05-17',
+                        zeitVon: '10:00',
+                        zeitBis: '13:00',
+                        veranstaltung: '36. Münchener Motorrad-Corso',
+                        ort: 'München',
+                        typ: 'Veranstaltung',
+                        motorraeder: ['903'],
+                        fahrer: ['8'],
+                        km: 0,
+                        status: 'Geplant'
+                    },
+                    {
+                        id: '3',
+                        datum: '2025-06-20',
+                        zeitVon: '13:00',
+                        zeitBis: '00:00',
+                        veranstaltung: 'Guns n Roses',
+                        ort: 'Allianz Arena',
+                        typ: 'Pflichtdienst',
+                        motorraeder: ['903', '904'],
+                        fahrer: ['8', '1'],
+                        km: 0,
+                        status: 'Geplant'
+                    },
+                    {
+                        id: '4',
+                        datum: '2025-03-15',
+                        zeitVon: '14:00',
+                        zeitBis: '22:00',
+                        veranstaltung: 'Winterschulung 2025',
+                        ort: 'Rosenheim',
+                        typ: 'Fachfortbildung',
+                        motorraeder: ['905', '906'],
+                        fahrer: ['2', '3'],
+                        km: 145,
+                        status: 'Abgeschlossen',
+                        bemerkungen: 'Erfolgreich abgeschlossen'
+                    },
+                    {
+                        id: '5',
+                        datum: '2025-06-22',
+                        zeitVon: '08:00',
+                        zeitBis: '18:00',
+                        veranstaltung: 'Tegernsee Sanitätsdienst',
+                        ort: 'Tegernsee',
+                        typ: 'Sanitätsdienst',
+                        motorraeder: ['904', '905', '906'],
+                        fahrer: ['6', '1', '11', '8'],
+                        km: 0,
+                        status: 'Geplant'
+                    }
+                ];
+                setEinsaetze(sampleData);
+                setLoading(false);
+            };
+            
+            const handleLogout = async () => {
+                try {
+                    const { signOut } = window.firebaseModules;
+                    await signOut(auth);
+                    console.log('✅ Abgemeldet');
+                } catch (error) {
+                    console.error('Logout Fehler:', error);
+                }
+            };
+            
+            const toggleEinsatzStatus = (id) => {
+                setEinsaetze(einsaetze.map(e => {
+                    if (e.id === id) {
+                        return {
+                            ...e,
+                            status: e.status === 'Geplant' ? 'Abgeschlossen' : 'Geplant'
+                        };
+                    }
+                    return e;
+                }));
+            };
+            
+            const filteredEinsaetze = einsaetze.filter(e => {
+                const matchesSearch = searchTerm === '' || 
+                    e.veranstaltung.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    e.ort.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesFilter = filterTyp === '' || e.typ === filterTyp;
+                const matchesStatus = filterStatus === '' || e.status === filterStatus;
+                return matchesSearch && matchesFilter && matchesStatus;
+            });
+            
+            const stats = {
+                gesamt: einsaetze.length,
+                geplant: einsaetze.filter(e => e.status === 'Geplant').length,
+                abgeschlossen: einsaetze.filter(e => e.status === 'Abgeschlossen').length,
+                gesamtKM: einsaetze.reduce((sum, e) => sum + (e.km || 0), 0)
+            };
+            
+            if (authLoading) {
+                return (
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        minHeight: '100vh',
+                        fontSize: '1.5rem',
+                        color: 'var(--text-light)'
+                    }}>
+                        ⏳ Wird geladen...
+                    </div>
+                );
+            }
+            
+            if (!user) {
+                return <LoginPage />;
+            }
+            
+            return (
+                <div className="container">
+                    <header className="header">
+                        <div className="header-content">
+                            <div className="logo-section">
+                                <div className="logo-icon">JUH</div>
+                                <div className="header-title">
+                                    <h1>🏍️ Motorradgruppe Einsatzplanung</h1>
+                                    <span className="subtitle">Johanniter Unfallhilfe - Bayern</span>
+                                </div>
+                            </div>
+                            <div className="header-actions">
+                                <button className="btn-header" onClick={() => setShowNewEinsatzModal(true)}>
+                                    ➕ Neuer Einsatz
+                                </button>
+                                <div className="user-info">
+                                    <span className="user-email">👤 {user.email}</span>
+                                    <button className="btn-logout" onClick={handleLogout}>
+                                        🚪 Abmelden
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+                    
+                    <nav className="nav-tabs">
+                        <button 
+                            className={`nav-tab ${activeTab === 'dashboard' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('dashboard')}
+                        >
+                            📊 Dashboard
+                        </button>
+                        <button 
+                            className={`nav-tab ${activeTab === 'einsaetze' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('einsaetze')}
+                        >
+                            📅 Einsatzplanung
+                        </button>
+                        <button 
+                            className={`nav-tab ${activeTab === 'motorraeder' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('motorraeder')}
+                        >
+                            🏍️ Motorräder
+                        </button>
+                        <button 
+                            className={`nav-tab ${activeTab === 'fahrer' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('fahrer')}
+                        >
+                            👥 Fahrer
+                        </button>
+                    </nav>
+                    
+                    <main className="main-content">
+                        {activeTab === 'dashboard' && (
+                            <div>
+                                <div className="stats-grid">
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats.gesamt}</div>
+                                        <div className="stat-label">Einsätze Gesamt</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats.geplant}</div>
+                                        <div className="stat-label">Geplante Einsätze</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats.abgeschlossen}</div>
+                                        <div className="stat-label">Abgeschlossen</div>
+                                    </div>
+                                    <div className="stat-card">
+                                        <div className="stat-value">{stats.gesamtKM.toLocaleString()}</div>
+                                        <div className="stat-label">Kilometer Gesamt</div>
+                                    </div>
+                                </div>
+                                
+                                <div className="card">
+                                    <div className="card-header">
+                                        <h2 className="card-title">Nächste Einsätze</h2>
+                                    </div>
+                                    <div className="table-container">
+                                        <table className="table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Datum</th>
+                                                    <th>Veranstaltung</th>
+                                                    <th>Ort</th>
+                                                    <th>Typ</th>
+                                                    <th>Status</th>
+                                                    <th>Fahrer</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {einsaetze
+                                                    .filter(e => e.status === 'Geplant')
+                                                    .slice(0, 5)
+                                                    .map(einsatz => (
+                                                    <tr key={einsatz.id}>
+                                                        <td>{new Date(einsatz.datum).toLocaleDateString('de-DE')}</td>
+                                                        <td><strong>{einsatz.veranstaltung}</strong></td>
+                                                        <td>{einsatz.ort}</td>
+                                                        <td>
+                                                            <span className={`badge ${
+                                                                einsatz.typ === 'Pflichtdienst' ? 'badge-pflicht' : 
+                                                                einsatz.typ === 'Optionaler Dienst' ? 'badge-optional' : 
+                                                                'badge-info'
+                                                            }`}>
+                                                                {einsatz.typ}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            <span className="badge badge-geplant">{einsatz.status}</span>
+                                                        </td>
+                                                        <td>
+                                                            {einsatz.fahrer.map(id => {
+                                                                const f = fahrer.find(x => x.id === id);
+                                                                return f ? `${f.vorname} ${f.nachname}` : id;
+                                                            }).join(', ')}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeTab === 'einsaetze' && (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">Alle Einsätze</h2>
+                                    <button className="btn btn-primary" onClick={() => setShowNewEinsatzModal(true)}>
+                                        ➕ Neuer Einsatz
+                                    </button>
+                                </div>
+                                
+                                <div className="search-filter-bar">
+                                    <input 
+                                        type="text" 
+                                        className="search-input"
+                                        placeholder="🔍 Suche nach Veranstaltung oder Ort..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                    <select 
+                                        className="form-select"
+                                        value={filterTyp}
+                                        onChange={(e) => setFilterTyp(e.target.value)}
+                                        style={{ maxWidth: '200px' }}
+                                    >
+                                        <option value="">Alle Typen</option>
+                                        {EINSATZTYPEN.map(typ => (
+                                            <option key={typ} value={typ}>{typ}</option>
+                                        ))}
+                                    </select>
+                                    <select 
+                                        className="form-select"
+                                        value={filterStatus}
+                                        onChange={(e) => setFilterStatus(e.target.value)}
+                                        style={{ maxWidth: '200px' }}
+                                    >
+                                        <option value="">Alle Status</option>
+                                        <option value="Geplant">Geplant</option>
+                                        <option value="Abgeschlossen">Abgeschlossen</option>
+                                    </select>
+                                </div>
+                                
+                                <div className="table-container">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Datum</th>
+                                                <th>Veranstaltung</th>
+                                                <th>Ort</th>
+                                                <th>Typ</th>
+                                                <th>Status</th>
+                                                <th>Motorräder</th>
+                                                <th>Fahrer</th>
+                                                <th>KM</th>
+                                                <th>Aktionen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredEinsaetze.map(einsatz => (
+                                                <tr key={einsatz.id}>
+                                                    <td>{new Date(einsatz.datum).toLocaleDateString('de-DE')}</td>
+                                                    <td><strong>{einsatz.veranstaltung}</strong></td>
+                                                    <td>{einsatz.ort}</td>
+                                                    <td>
+                                                        <span className={`badge ${
+                                                            einsatz.typ === 'Pflichtdienst' ? 'badge-pflicht' : 
+                                                            einsatz.typ === 'Optionaler Dienst' ? 'badge-optional' : 
+                                                            'badge-info'
+                                                        }`}>
+                                                            {einsatz.typ}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <span className={`badge ${
+                                                            einsatz.status === 'Geplant' ? 'badge-geplant' : 'badge-abgeschlossen'
+                                                        }`}>
+                                                            {einsatz.status}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        {einsatz.motorraeder.map(id => {
+                                                            const m = motorraeder.find(x => x.id === id);
+                                                            return m ? m.kennzeichen : id;
+                                                        }).join(', ')}
+                                                    </td>
+                                                    <td>
+                                                        {einsatz.fahrer.map(id => {
+                                                            const f = fahrer.find(x => x.id === id);
+                                                            return f ? `${f.vorname} ${f.nachname}` : id;
+                                                        }).join(', ')}
+                                                    </td>
+                                                    <td>{einsatz.km || 0}</td>
+                                                    <td>
+                                                        <button 
+                                                            className="action-btn action-btn-complete"
+                                                            onClick={() => toggleEinsatzStatus(einsatz.id)}
+                                                            title={einsatz.status === 'Geplant' ? 'Als abgeschlossen markieren' : 'Als geplant markieren'}
+                                                        >
+                                                            {einsatz.status === 'Geplant' ? '✓' : '↺'}
+                                                        </button>
+                                                        <button 
+                                                            className="action-btn action-btn-edit"
+                                                            onClick={() => exportEinsatzToCSV(einsatz, motorraeder, fahrer)}
+                                                            title="Als CSV exportieren"
+                                                        >
+                                                            💾
+                                                        </button>
+                                                        <button className="action-btn action-btn-delete">🗑️</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeTab === 'motorraeder' && (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">Motorräder Verwaltung</h2>
+                                    <button className="btn btn-primary" onClick={() => setShowMotorradModal(true)}>
+                                        ➕ Neues Motorrad
+                                    </button>
+                                </div>
+                                <div className="table-container">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Kennzeichen</th>
+                                                <th>Marke</th>
+                                                <th>Typ</th>
+                                                <th>Baujahr</th>
+                                                <th>Kilometerstand</th>
+                                                <th>Einsätze</th>
+                                                <th>Aktionen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {motorraeder.map(motorrad => {
+                                                const count = einsaetze.filter(e => 
+                                                    e.motorraeder.includes(motorrad.id)
+                                                ).length;
+                                                return (
+                                                    <tr key={motorrad.id}>
+                                                        <td><strong>{motorrad.kennzeichen}</strong></td>
+                                                        <td>{motorrad.marke}</td>
+                                                        <td>{motorrad.typ}</td>
+                                                        <td>{motorrad.baujahr}</td>
+                                                        <td>{motorrad.kilometerstand.toLocaleString()} km</td>
+                                                        <td>{count}</td>
+                                                        <td>
+                                                            <button className="action-btn action-btn-edit">✏️</button>
+                                                            <button className="action-btn action-btn-delete">🗑️</button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {activeTab === 'fahrer' && (
+                            <div className="card">
+                                <div className="card-header">
+                                    <h2 className="card-title">Fahrer Verwaltung</h2>
+                                    <button className="btn btn-primary" onClick={() => setShowFahrerModal(true)}>
+                                        ➕ Neuer Fahrer
+                                    </button>
+                                </div>
+                                <div className="table-container">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>E-Mail</th>
+                                                <th>Telefon</th>
+                                                <th>Geburtstag</th>
+                                                <th>Einsätze</th>
+                                                <th>Aktionen</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {fahrer.map(f => {
+                                                const count = einsaetze.filter(e => 
+                                                    e.fahrer.includes(f.id)
+                                                ).length;
+                                                return (
+                                                    <tr key={f.id}>
+                                                        <td><strong>{f.vorname} {f.nachname}</strong></td>
+                                                        <td>{f.email || '-'}</td>
+                                                        <td>{f.telefon || '-'}</td>
+                                                        <td>{f.geburtstag ? new Date(f.geburtstag).toLocaleDateString('de-DE') : '-'}</td>
+                                                        <td>{count}</td>
+                                                        <td>
+                                                            <button className="action-btn action-btn-edit">✏️</button>
+                                                            <button className="action-btn action-btn-delete">🗑️</button>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                    </main>
+                    
+                    {/* Modal für Neuen Einsatz */}
+                    {showNewEinsatzModal && (
+                        <div className="modal-overlay" onClick={() => setShowNewEinsatzModal(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">➕ Neuer Einsatz</h2>
+                                    <button className="modal-close" onClick={() => setShowNewEinsatzModal(false)}>✕</button>
+                                </div>
+                                <div className="modal-body">
+                                    <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
+                                        Formular folgt in nächster Version...
+                                    </p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-secondary" onClick={() => setShowNewEinsatzModal(false)}>
+                                        Abbrechen
+                                    </button>
+                                    <button className="btn btn-primary">
+                                        Speichern
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Modal für Neuen Fahrer */}
+                    {showFahrerModal && (
+                        <div className="modal-overlay" onClick={() => setShowFahrerModal(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">➕ Neuer Fahrer</h2>
+                                    <button className="modal-close" onClick={() => setShowFahrerModal(false)}>✕</button>
+                                </div>
+                                <div className="modal-body">
+                                    <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
+                                        Formular folgt in nächster Version...
+                                    </p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-secondary" onClick={() => setShowFahrerModal(false)}>
+                                        Abbrechen
+                                    </button>
+                                    <button className="btn btn-primary">
+                                        Speichern
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Modal für Neues Motorrad */}
+                    {showMotorradModal && (
+                        <div className="modal-overlay" onClick={() => setShowMotorradModal(false)}>
+                            <div className="modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="modal-header">
+                                    <h2 className="modal-title">➕ Neues Motorrad</h2>
+                                    <button className="modal-close" onClick={() => setShowMotorradModal(false)}>✕</button>
+                                </div>
+                                <div className="modal-body">
+                                    <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
+                                        Formular folgt in nächster Version...
+                                    </p>
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-secondary" onClick={() => setShowMotorradModal(false)}>
+                                        Abbrechen
+                                    </button>
+                                    <button className="btn btn-primary">
+                                        Speichern
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        ReactDOM.render(<EinsatzplanungApp />, document.getElementById('root'));
+        console.log('✅ App gerendert');
+    </script>
+</body>
+</html>
